@@ -159,4 +159,54 @@ server.get('/api/actions/:id', (req, res) => {
         });
 });
 
+server.put('/api/projects/:id', (req, res) => {
+    const { id } = req.params;
+    const changes = req.body;
+
+    if (changes === {}) {
+        res.status(400).json({
+            errMessage: 'Please include changes to commit',
+        });
+        return;
+    }
+
+    projects
+        .update(id, changes)
+        .then(result => {
+            res.status(200).json(result);
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(404).json({
+                errMessage: 'Project by this id does not exist.',
+            });
+        });
+});
+
+server.put('/api/actions/:id', (req, res) => {
+    const { id } = req.params;
+    const changes = req.body;
+
+    console.log(changes);
+
+    if (JSON.stringify(changes) === '{}') {
+        res.status(400).json({
+            errMessage: 'Please include changes to commit',
+        });
+        return;
+    }
+
+    actions
+        .update(id, changes)
+        .then(result => {
+            res.status(200).json(result);
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(404).json({
+                errMessage: 'Action by this id does not exist.',
+            });
+        });
+});
+
 module.exports = server;
