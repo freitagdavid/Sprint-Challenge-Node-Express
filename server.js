@@ -209,4 +209,72 @@ server.put('/api/actions/:id', (req, res) => {
         });
 });
 
+server.delete('/api/projects/:id', (req, res) => {
+    const { id } = req.params;
+
+    projects
+        .remove(id)
+        .then(result => {
+            projects
+                .get(id)
+                .then(result => {
+                    res.status(500).json({
+                        errMessage: 'Project not deleted.',
+                    });
+                })
+                .catch(err => {
+                    res.status(201).json({
+                        errMessage: 'Project successfully deleted',
+                    });
+                });
+        })
+        .catch(err => {
+            res.status(404).json({
+                errMessage: 'Project by this id does not exist.',
+            });
+        });
+});
+
+server.delete('/api/actions/:id', (req, res) => {
+    const { id } = req.params;
+
+    actions
+        .remove(id)
+        .then(result => {
+            actions
+                .get(id)
+                .then(result => {
+                    res.status(500).json({
+                        errMessage: 'Project not deleted.',
+                    });
+                })
+                .catch(err => {
+                    res.status(201).json({
+                        errMessage: 'Project successfully deleted',
+                    });
+                });
+        })
+        .catch(err => {
+            res.status(404).json({
+                errMessage: 'Project by this id does not exist.',
+            });
+        });
+});
+
+server.get('/api/projects/:id/actions', (req, res) => {
+    const { id } = req.params;
+    console.log(id);
+
+    projects
+        .get(id)
+        .then(result => {
+            res.status(200).json(result.actions);
+        })
+        .catch(err => {
+            res.status(404).json({
+                errMessage: 'Project by this id does not exist.',
+            });
+        });
+});
+
 module.exports = server;
