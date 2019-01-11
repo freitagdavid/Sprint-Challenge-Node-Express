@@ -1,0 +1,136 @@
+const express = require('express');
+const cors = require('cors');
+const projects = require('./data/helpers/projectModel');
+const actions = require('./data/helpers/actionModel');
+const morgan = require('morgan');
+
+const server = express();
+server.use(cors());
+server.use(express.json());
+server.use(morgan('common'));
+
+// COMPLETE Get all projects and actions
+// TODO Create actions and projects
+// TODO Get projects and actions by id
+// TODO Remove projects and actions by id
+// TODO Update projects and actions
+// TODO Retrieve actions for project
+
+server.get('/api/projects', (req, res) => {
+    projects.get().then(projects => {
+        res.status(200).json(projects);
+    });
+});
+
+server.get('/api/actions', (req, res) => {
+    actions.get().then(actions => {
+        res.status(200).json(actions);
+    });
+});
+
+server.post('/api/projects', (req, res) => {
+    if (!req.body) {
+        res.status(400).json({
+            errMessage: 'Please include a project name and description',
+        });
+        return;
+    }
+    let { name, description, completed } = req.body;
+
+    if (!name || !description) {
+        res.status(400).json({
+            errMessage: 'Please include a project name and description',
+        });
+        return;
+    }
+
+    if (name.length >= 128) {
+        res.status(400).json({
+            errMessage: 'Maximum name length 128 exceeded',
+        });
+    }
+
+    completed = typeof completed === 'undefined' ? false : completed;
+
+    console.log(completed);
+
+    project = { name: name, description: description, completed: completed };
+
+    projects
+        .insert(project)
+        .then(result => {
+            projects
+                .get(result.id)
+                .then(project => {
+                    res.status(201).json(project);
+                })
+                .catch(err => {
+                    res.status(500).json({ errMessage: err });
+                });
+        })
+        .catch(err => {
+            res.status(500).json({ errMessage: err });
+        });
+});
+
+server.post('/api/actions', async (req, res) => {
+    if (!req.body) {
+        res.status(400).json({
+            errMessage:
+                'Please include an associated project id, description, notes, and optionally completion boolean',
+        });
+        return;
+    }
+
+    let { project_id, description, notes, completed } = req.body;
+
+    if ((!project_id, !description, !notes)) {
+        res.status(400).json({
+            errMessage:
+                'Please include an associated project id, description, notes, and optionally completion boolean',
+        });
+        return;
+    }
+
+    if (description.length >= 128) {
+        res.status(400).json({
+            errMessage: 'Manimum description lenght of 128 exceeded',
+        });
+        return;
+    }
+
+    const projectsList = await projects.get();
+
+    if (!projectsList[project_id]) {
+        res.status(404).json({
+            errMessage: 'Project by this ID does not exist',
+        });
+        return;
+    }
+    console.log('test');
+
+    completed = typeof completed === 'undefined' ? false : completed;
+
+    const action = {
+        project_id: project_id,
+        description: description,
+        notes: notes,
+        completed: completed,
+    };
+
+    actions
+        .insert(action)
+        .then(result => {
+            res.status(200).json(result);
+        })
+        .catch(err => {
+            res.status(500).json({ errMessage: 'Action not added' });
+        });
+
+    // await projects.get(project_id).catch(err => {
+    // });
+});
+
+server.get('/api/action');
+
+module.exports = server;
