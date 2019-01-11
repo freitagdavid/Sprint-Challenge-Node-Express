@@ -144,6 +144,19 @@ server.get('/api/projects/:id', (req, res) => {
             });
         });
 });
-server.get('/api/actions/:id', (req, res) => {});
+
+server.get('/api/actions/:id', (req, res) => {
+    const { id } = req.params;
+    actions
+        .get(id)
+        .then(result => {
+            res.status(200).json(result);
+        })
+        .catch(err => {
+            res.status(404).json({
+                errMessage: 'Action by this ID does not exist',
+            });
+        });
+});
 
 module.exports = server;
