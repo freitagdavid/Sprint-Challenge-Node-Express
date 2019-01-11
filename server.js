@@ -131,6 +131,19 @@ server.post('/api/actions', async (req, res) => {
     // });
 });
 
-server.get('/api/action');
+server.get('/api/projects/:id', (req, res) => {
+    const { id } = req.params;
+    projects
+        .get(id)
+        .then(result => {
+            res.status(200).json(result);
+        })
+        .catch(err => {
+            res.status(404).json({
+                errMessage: 'Project by this ID does not exist',
+            });
+        });
+});
+server.get('/api/actions/:id', (req, res) => {});
 
 module.exports = server;
